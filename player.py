@@ -3,7 +3,7 @@ import numpy as np
 import pygame as pg
 import time
 
-NUM_MAPS = 10
+NUM_TILES = 9
 MAP_SIZE = 1024
 MIN_SPEED = -20
 MAX_SPEED = 20
@@ -13,9 +13,9 @@ OBJECT_SIZE = 5
 
 class Player:
     def __init__(self):
-        self.pos = np.array([(MAP_SIZE*NUM_MAPS/2), MAP_SIZE*NUM_MAPS/2], dtype=float)
+        self.pos = np.array([(MAP_SIZE*NUM_TILES/2), MAP_SIZE*NUM_TILES/2], dtype=float)
         self.angle = -math.pi/2
-        self.height = 500
+        self.height = 400
         self.pitch = 0
         self.angle_vel = 0.02
         self.speed = 0
@@ -122,12 +122,12 @@ class Player:
         # check map boundaries
         if self.pos[0] < MAP_SIZE:
             self.pos[0] = MAP_SIZE
-        if self.pos[0] > MAP_SIZE * (NUM_MAPS - 1):
-            self.pos[0] = MAP_SIZE * (NUM_MAPS - 1)
+        if self.pos[0] > MAP_SIZE * (NUM_TILES - 1):
+            self.pos[0] = MAP_SIZE * (NUM_TILES - 1)
         if self.pos[1] < MAP_SIZE:
             self.pos[1] = MAP_SIZE
-        if self.pos[1] > MAP_SIZE * (NUM_MAPS - 1):
-            self.pos[1] = MAP_SIZE * (NUM_MAPS - 1)
+        if self.pos[1] > MAP_SIZE * (NUM_TILES - 1):
+            self.pos[1] = MAP_SIZE * (NUM_TILES - 1)
 
         # increase / decrease speed
         self.speed = -self.pitch*MAX_SPEED/MAP_SIZE*2

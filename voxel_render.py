@@ -8,6 +8,7 @@ BG_DARK = (0, 0, 0, 50)
 BG_SELECTION = (0, 255, 255, 80)
 MAX_FUEL = 5000
 MAX_DAMAGE = 100
+NUM_TILES = 9
 NUM_MAPS = 10
 
 @njit(fastmath=True)    
@@ -40,25 +41,17 @@ def extract_minimap(color_map, x, y):
     y = int(y)
     
     # size of the map to be extracted
-    size = 1024
+    size = 512
     
-    # compute the area to be extracted
-    half_size = size // 2
-    x_start = max(0, x - half_size)
-    x_end = min(color_map.shape[0], x + half_size)
-    y_start = max(0, y - half_size)
-    y_end = min(color_map.shape[1], y + half_size)
-    
+    # compute the area to be extracted while ensuring we stay within bounds
+    x_start = max(0, x - size)
+    x_end = min(color_map.shape[0], x + size)
+    y_start = max(0, y - size)
+    y_end = min(color_map.shape[1], y + size)
+
     # extract the color map
     cropped_map = color_map[x_start:x_end, y_start:y_end, :]
-    
-    # Si la portion extraite n'est pas exactement 1024x1024 (par exemple, si (x, y) est proche du bord),
-    # on ajuste la taille en rajoutant des bords noirs (valeurs [0, 0, 0] pour RGB)
-    #if cropped_map.shape[0] < size or cropped_map.shape[1] < size:
-    #    padded_map = np.zeros((size, size, 3), dtype=np.uint8)
-    #    padded_map[:cropped_map.shape[0], :cropped_map.shape[1], :] = cropped_map
-    #    cropped_map = padded_map
-    
+      
     # create a pygame surface from a RGB array
     surface = pg.surfarray.make_surface(cropped_map)
     
@@ -67,22 +60,28 @@ def extract_minimap(color_map, x, y):
 @njit(fastmath=True)
 def ray_casting(screen_array, player_pos, player_angle, player_height, player_pitch,
                      screen_width, screen_height, delta_angle, ray_distance, h_fov, scale_height, 
-                     color_map, height_map, sky_texture):
+                     color_map, height_map, sky_texture, scroll_x):
 
     map_height = len(height_map[0])
     map_width = len(height_map)
 
-    background_color = np.array([204, 229, 255], dtype=np.float64)  # Sky color as float64 for blending
-    screen_array[:] = background_color.astype(np.uint8)  # Fill background with sky color
+    # width of the sky image
+    width_sky = sky_texture.shape[0]
 
-    # experimental
-    # Définir les dimensions de la partie que tu veux copier (exemple)
-    x_start, x_end = 0, 640  # Largeur de la partie à copier
-    y_start, y_end = 0, 320  # Hauteur de la partie à copier
+    # if the offset exceeds the width of the image, reset it to loop
+    scroll_x %= width_sky
+    remaining_width = width_sky - scroll_x
 
-    # Copier la partie sélectionnée de 'self.sky' dans 'screen_array'
-    screen_array[x_start:x_end, y_start:y_end] = sky_texture[x_start:x_end, y_start:y_end]
-
+    # if the visible part does not go beyond the end of the image
+    if remaining_width >= screen_array.shape[0]:
+        screen_array[:, :] = sky_texture[scroll_x:scroll_x + screen_array.shape[0], :screen_array.shape[1]]
+    else:
+        # if the visible part exceeds the image's end, we split it into two parts:
+        # first, copy the portion from 'scroll_x' to the end of the image
+        screen_array[:remaining_width, :] = sky_texture[scroll_x:, :screen_array.shape[1]]
+        
+        # then, copy the remaining part from the beginning of the image
+        screen_array[remaining_width:, :] = sky_texture[:screen_array.shape[0] - remaining_width, :screen_array.shape[1]]    
 
     y_buffer = np.full(screen_width, screen_height)
 
@@ -212,27 +211,30 @@ class VoxelRender:
         self.app = app
         self.player = app.player
         self.explosion = app.explosion
-        self.fov = math.pi / 6
-        self.h_fov = self.fov / 2
+        self.fov = math.pi / 4
+        self.h_fov = self.fov / 4
         self.num_rays = app.width
         self.delta_angle = self.fov / self.num_rays
         self.ray_distance = 1800
-        self.scale_height = 512
+        self.scale_height = 340
         self.screen_array = np.full((app.width, app.height, 3), (0, 0, 0))
         self.hud_font_small = pg.freetype.Font("./fonts/lcd.ttf", 16)
         self.map_id = 0
         self.height_map = load_map('img/map'+str(self.map_id)+'_height.png')
         self.color_map = load_map('img/map'+str(self.map_id)+'_color.png')
-        self.sky = pg.surfarray.array3d(pg.image.load('img/sky.png'))
-        self.sky = np.tile(self.sky, (3, 1, 1))
         self.player.height_map = self.height_map
+        self.sky_offset_x = 0
+        self.sky = pg.surfarray.array3d(pg.image.load('img/sky.png'))
 
     def update(self):
+        # update the sky location
+        self.sky_offset_x += int(self.player.roll/5)
+
         # ray trace the scenery
         self.screen_array = ray_casting(self.screen_array, self.player.pos, self.player.angle,
                                         self.player.height, self.player.pitch, self.app.width,
                                         self.app.height, self.delta_angle, self.ray_distance,
-                                        self.h_fov, self.scale_height, self.color_map, self.height_map, self.sky)
+                                        self.h_fov, self.scale_height, self.color_map, self.height_map, self.sky, self.sky_offset_x)
 
     # load the next map
     def change_map(self):
@@ -251,10 +253,10 @@ class VoxelRender:
             extract_minimap(self.color_map, self.player.pos[0], self.player.pos[1]), (64,64)), (11,self.app.height-75))
 
         # view port
-        aperture = math.pi/10
-        p0 = (42, self.app.height-76+32)
-        p1 = project_point(42, self.app.height-76+32, 32, -self.app.player.angle-aperture)
-        p2 = project_point(42, self.app.height-76+32, 32, -self.app.player.angle+aperture)
+        aperture = math.pi/8
+        p0 = (44, self.app.height-76+32)
+        p1 = project_point(44, self.app.height-76+32, 32, -self.app.player.angle-aperture)
+        p2 = project_point(44, self.app.height-76+32, 32, -self.app.player.angle+aperture)
         draw_polygon_alpha(self.app.screen, BG_SELECTION, [p0, p1, p2])
 
         # green borders
@@ -279,15 +281,28 @@ class VoxelRender:
         for i in range(-300, 360, 60):
             offset_y = self.player.pitch+i
             if i==0:
+                pg.draw.line(self.app.screen, HUD_COLOR,
+                             (self.app.width / 2 - 90, self.app.height / 2),
+                             (self.app.width / 2 - 95, self.app.height / 2 - 5))
+                pg.draw.line(self.app.screen, HUD_COLOR,
+                             (self.app.width / 2 - 90, self.app.height / 2),
+                             (self.app.width / 2 - 95, self.app.height / 2 + 5))
+                pg.draw.line(self.app.screen, HUD_COLOR,
+                             (self.app.width / 2 + 90, self.app.height / 2),
+                             (self.app.width / 2 + 95, self.app.height / 2 - 5))
+                pg.draw.line(self.app.screen, HUD_COLOR,
+                             (self.app.width / 2 + 90, self.app.height / 2),
+                             (self.app.width / 2 + 95, self.app.height / 2 + 5))                                                
+
                 draw_rotated_line(self.app.screen, 
-                                self.app.width / 2 - 100, self.app.height / 2 + offset_y,
+                                self.app.width / 2 - 90, self.app.height / 2 + offset_y,
                                 self.app.width / 2 - 30, self.app.height / 2 + offset_y,
                                 self.app.width/2, self.app.height/2,
                                 -self.player.roll,
                                 HUD_COLOR, 1, False
                                 )
                 draw_rotated_line(self.app.screen, 
-                                self.app.width / 2 + 100, self.app.height / 2 + offset_y,
+                                self.app.width / 2 + 90, self.app.height / 2 + offset_y,
                                 self.app.width / 2 + 30, self.app.height / 2 + offset_y,
                                 self.app.width/2, self.app.height/2,
                                 -self.player.roll,

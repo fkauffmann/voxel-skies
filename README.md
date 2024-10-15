@@ -42,7 +42,7 @@ For the theory and maps, I used this other repository: https://github.com/Stanis
 * [ ] landing zones ?
 * [x] hovering effects ?
 * [x] external HUD
-* [ ] sky dome
+* [x] sky dome
 * [x] fullscreen toggle
 * [ ] intro screen
 * [ ] end screen
