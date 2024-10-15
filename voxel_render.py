@@ -66,17 +66,27 @@ def extract_minimap(color_map, x, y):
 
 @njit(fastmath=True)
 def ray_casting(screen_array, player_pos, player_angle, player_height, player_pitch,
-                     screen_width, screen_height, delta_angle, ray_distance, h_fov, scale_height, color_map, height_map):
+                     screen_width, screen_height, delta_angle, ray_distance, h_fov, scale_height, 
+                     color_map, height_map, sky_texture):
 
     map_height = len(height_map[0])
     map_width = len(height_map)
 
     background_color = np.array([204, 229, 255], dtype=np.float64)  # Sky color as float64 for blending
     screen_array[:] = background_color.astype(np.uint8)  # Fill background with sky color
+
+    # experimental
+    # Définir les dimensions de la partie que tu veux copier (exemple)
+    x_start, x_end = 0, 640  # Largeur de la partie à copier
+    y_start, y_end = 0, 320  # Hauteur de la partie à copier
+
+    # Copier la partie sélectionnée de 'self.sky' dans 'screen_array'
+    screen_array[x_start:x_end, y_start:y_end] = sky_texture[x_start:x_end, y_start:y_end]
+
+
     y_buffer = np.full(screen_width, screen_height)
 
     ray_angle = player_angle - h_fov
-    half_ray_distance = ray_distance / 2
     for num_ray in range(screen_width):
         first_contact = False
         sin_a = math.sin(ray_angle)
@@ -106,21 +116,9 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
                     if height_on_screen < y_buffer[num_ray]:
                         object_color = color_map[x, y].astype(np.float64)  # Ensure object color is float64
                         
-                        # Vérifier si la profondeur dépasse la moitié de la distance maximale
-                        if depth > half_ray_distance:
-                            # Apply fog only if depth > half_ray_distance
-                            fog_factor = min((depth - half_ray_distance) / half_ray_distance, 1.0)
-                            blended_color = (1 - fog_factor) * object_color + fog_factor * background_color
-                        else:
-                            # No fog for the first 50% of the distance
-                            blended_color = object_color
-
-                        # Convert blended color back to uint8 before assigning to screen_array
-                        blended_color = blended_color.astype(np.uint8)
-
                         # Draw the column
                         for screen_y in range(height_on_screen, y_buffer[num_ray]):
-                            screen_array[num_ray, screen_y] = blended_color
+                            screen_array[num_ray, screen_y] = object_color
 
                         y_buffer[num_ray] = height_on_screen
 
@@ -218,13 +216,15 @@ class VoxelRender:
         self.h_fov = self.fov / 2
         self.num_rays = app.width
         self.delta_angle = self.fov / self.num_rays
-        self.ray_distance = 1280
+        self.ray_distance = 1800
         self.scale_height = 512
         self.screen_array = np.full((app.width, app.height, 3), (0, 0, 0))
         self.hud_font_small = pg.freetype.Font("./fonts/lcd.ttf", 16)
         self.map_id = 0
         self.height_map = load_map('img/map'+str(self.map_id)+'_height.png')
         self.color_map = load_map('img/map'+str(self.map_id)+'_color.png')
+        self.sky = pg.surfarray.array3d(pg.image.load('img/sky.png'))
+        self.sky = np.tile(self.sky, (3, 1, 1))
         self.player.height_map = self.height_map
 
     def update(self):
@@ -232,7 +232,7 @@ class VoxelRender:
         self.screen_array = ray_casting(self.screen_array, self.player.pos, self.player.angle,
                                         self.player.height, self.player.pitch, self.app.width,
                                         self.app.height, self.delta_angle, self.ray_distance,
-                                        self.h_fov, self.scale_height, self.color_map, self.height_map)
+                                        self.h_fov, self.scale_height, self.color_map, self.height_map, self.sky)
 
     # load the next map
     def change_map(self):
@@ -245,9 +245,6 @@ class VoxelRender:
 
     # draw main dashboard
     def draw_cockpit(self):
-        # transparent areas
-        # draw_rect_alpha(self.app.screen, BG_DARK, (10, self.app.height-76, 66, 66))
-
         # draw mini map
         self.app.screen.blit(
             pg.transform.scale(

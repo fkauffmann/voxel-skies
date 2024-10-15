@@ -15,7 +15,7 @@ class Player:
     def __init__(self):
         self.pos = np.array([(MAP_SIZE*NUM_MAPS/2), MAP_SIZE*NUM_MAPS/2], dtype=float)
         self.angle = -math.pi/2
-        self.height = 200
+        self.height = 500
         self.pitch = 0
         self.angle_vel = 0.02
         self.speed = 0
