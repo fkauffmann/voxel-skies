@@ -44,13 +44,16 @@ class App:
             self.draw()
 
             for event in pg.event.get():
+                # quit game
                 if event.type == pg.QUIT or (
                         event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                     sys.exit()
+                # load next map
                 if event.type == pg.KEYDOWN and event.key == pg.K_l:
                     self.voxel_render.change_map()
-
-            #pg.mixer.music.set_volume(0.4 + (abs(self.player.speed)/7))
+                # toggle night vision goggles
+                if event.type == pg.KEYDOWN and event.key == pg.K_n:
+                    self.player.nvg = not self.player.nvg
 
             self.clock.tick(60)
             pg.display.set_caption(f'FPS: {int(self.clock.get_fps())}')

@@ -22,6 +22,7 @@ For the theory and maps, I used this other repository: https://github.com/Stanis
 | Q | Slide left |
 | D | Slide right |
 | L | Load next map |
+| N | Night vision goggles |
 
 ## Requirements
 

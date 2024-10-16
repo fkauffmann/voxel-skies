@@ -60,28 +60,33 @@ def extract_minimap(color_map, x, y):
 @njit(fastmath=True)
 def ray_casting(screen_array, player_pos, player_angle, player_height, player_pitch,
                      screen_width, screen_height, delta_angle, ray_distance, h_fov, scale_height, 
-                     color_map, height_map, sky_texture, scroll_x):
+                     color_map, height_map, sky_texture, scroll_x, nvg):
 
     map_height = len(height_map[0])
     map_width = len(height_map)
 
-    # width of the sky image
-    width_sky = sky_texture.shape[0]
+    if not nvg:
+        # width of the sky image
+        width_sky = sky_texture.shape[0]
 
-    # if the offset exceeds the width of the image, reset it to loop
-    scroll_x %= width_sky
-    remaining_width = width_sky - scroll_x
+        # if the offset exceeds the width of the image, reset it to loop
+        scroll_x %= width_sky
+        remaining_width = width_sky - scroll_x
 
-    # if the visible part does not go beyond the end of the image
-    if remaining_width >= screen_array.shape[0]:
-        screen_array[:, :] = sky_texture[scroll_x:scroll_x + screen_array.shape[0], :screen_array.shape[1]]
+        # if the visible part does not go beyond the end of the image
+        if remaining_width >= screen_array.shape[0]:
+            screen_array[:, :] = sky_texture[scroll_x:scroll_x + screen_array.shape[0], :screen_array.shape[1]]
+        else:
+            # if the visible part exceeds the image's end, we split it into two parts:
+            # first, copy the portion from 'scroll_x' to the end of the image
+            screen_array[:remaining_width, :] = sky_texture[scroll_x:, :screen_array.shape[1]]
+            
+            # then, copy the remaining part from the beginning of the image
+            screen_array[remaining_width:, :] = sky_texture[:screen_array.shape[0] - remaining_width, :screen_array.shape[1]]    
+
     else:
-        # if the visible part exceeds the image's end, we split it into two parts:
-        # first, copy the portion from 'scroll_x' to the end of the image
-        screen_array[:remaining_width, :] = sky_texture[scroll_x:, :screen_array.shape[1]]
-        
-        # then, copy the remaining part from the beginning of the image
-        screen_array[remaining_width:, :] = sky_texture[:screen_array.shape[0] - remaining_width, :screen_array.shape[1]]    
+        # dark sky
+        screen_array[:] = 0
 
     y_buffer = np.full(screen_width, screen_height)
 
@@ -114,10 +119,13 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
                     # draw vert line
                     if height_on_screen < y_buffer[num_ray]:
                         object_color = color_map[x, y].astype(np.float64)  # Ensure object color is float64
-                        
+
                         # Draw the column
                         for screen_y in range(height_on_screen, y_buffer[num_ray]):
-                            screen_array[num_ray, screen_y] = object_color
+                            if nvg:
+                                screen_array[num_ray, screen_y] = [0.0, object_color[1], 0.0]
+                            else:
+                                screen_array[num_ray, screen_y] = object_color
 
                         y_buffer[num_ray] = height_on_screen
 
@@ -234,7 +242,8 @@ class VoxelRender:
         self.screen_array = ray_casting(self.screen_array, self.player.pos, self.player.angle,
                                         self.player.height, self.player.pitch, self.app.width,
                                         self.app.height, self.delta_angle, self.ray_distance,
-                                        self.h_fov, self.scale_height, self.color_map, self.height_map, self.sky, self.sky_offset_x)
+                                        self.h_fov, self.scale_height, self.color_map, self.height_map, 
+                                        self.sky, self.sky_offset_x, self.player.nvg)
 
     # load the next map
     def change_map(self):

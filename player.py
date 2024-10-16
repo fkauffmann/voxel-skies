@@ -40,6 +40,7 @@ class Player:
         self.oscillation = 0
         self.fuel = MAX_FUEL
         self.damages = MAX_DAMAGES
+        self.nvg = False
 
     # return the current heading in degrees (3 digits)
     def get_heading(self):
