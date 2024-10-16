@@ -8,6 +8,8 @@ The core renderer used in this project has been developed by Stanislas Petrov an
 
 For the theory and maps, I used this other repository: https://github.com/StanislavPetrovV/Voxel-Space-Render
 
+I don't intend to develop an arcade game, but rather a small flight simulator with a very basic flight model, for fun and to learn Python.
+
 <img src="screenshot.png">
 
 ## Shortcuts
@@ -53,3 +55,8 @@ For the theory and maps, I used this other repository: https://github.com/Stanis
 Known bugs / issues
 
 * None
+
+## Attribution
+
+Helicopter sound:
+https://freesound.org/people/Robinhood76/sounds/554511/ by Robinhood76
