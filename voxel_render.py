@@ -77,15 +77,11 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
         if remaining_width >= screen_array.shape[0]:
             screen_array[:, :] = sky_texture[scroll_x:scroll_x + screen_array.shape[0], :screen_array.shape[1]]
         else:
-            # if the visible part exceeds the image's end, we split it into two parts:
-            # first, copy the portion from 'scroll_x' to the end of the image
+            # if the visible part exceeds the image's end, we split it into two parts           
             screen_array[:remaining_width, :] = sky_texture[scroll_x:, :screen_array.shape[1]]
-            
-            # then, copy the remaining part from the beginning of the image
-            screen_array[remaining_width:, :] = sky_texture[:screen_array.shape[0] - remaining_width, :screen_array.shape[1]]    
-
+            screen_array[remaining_width:, :] = sky_texture[:screen_array.shape[0] - remaining_width, :screen_array.shape[1]]
     else:
-        # dark sky
+        # dark sky (NVG mode)
         screen_array[:] = 0
 
     y_buffer = np.full(screen_width, screen_height)
@@ -95,6 +91,9 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
         first_contact = False
         sin_a = math.sin(ray_angle)
         cos_a = math.cos(ray_angle)
+
+        # NVG optimization: pre-calculate the NVG color (constant for this ray)
+        nvg_color = np.array([0.0, 0.0, 0.0]) if nvg else None
 
         for depth in range(1, ray_distance):
             x = int(player_pos[0] + depth * cos_a)
@@ -111,26 +110,26 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
                     if not first_contact:
                         y_buffer[num_ray] = min(height_on_screen, screen_height)
                         first_contact = True
-
                     # remove mirror bug
                     if height_on_screen < 0:
                         height_on_screen = 0
 
                     # draw vert line
                     if height_on_screen < y_buffer[num_ray]:
-                        object_color = color_map[x, y].astype(np.float64)  # Ensure object color is float64
-
-                        # Draw the column
-                        for screen_y in range(height_on_screen, y_buffer[num_ray]):
-                            if nvg:
-                                screen_array[num_ray, screen_y] = [0.0, object_color[1], 0.0]
-                            else:
+                        if nvg:
+                            for screen_y in range(height_on_screen, y_buffer[num_ray]):
+                                # Set NVG color directly
+                                screen_array[num_ray, screen_y] = [0.0, color_map[x, y][1], 0.0]
+                        else:
+                            object_color = color_map[x, y]
+                            for screen_y in range(height_on_screen, y_buffer[num_ray]):
                                 screen_array[num_ray, screen_y] = object_color
 
                         y_buffer[num_ray] = height_on_screen
 
         ray_angle += delta_angle
     return screen_array
+
 
 def draw_rect_alpha(surface, color, rect):
     shape_surf = pg.Surface(pg.Rect(rect).size, pg.SRCALPHA)
