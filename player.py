@@ -3,7 +3,7 @@ import numpy as np
 import pygame as pg
 import time
 
-NUM_TILES = 9
+NUM_TILES = 7
 MAP_SIZE = 1024
 MIN_SPEED = -20
 MAX_SPEED = 20
@@ -120,15 +120,15 @@ class Player:
             self.pos[0] -= self.lateral_velocity * sin_a
             self.pos[1] += self.lateral_velocity * cos_a
 
-        # check map boundaries
-        if self.pos[0] < MAP_SIZE:
-            self.pos[0] = MAP_SIZE
-        if self.pos[0] > MAP_SIZE * (NUM_TILES - 1):
-            self.pos[0] = MAP_SIZE * (NUM_TILES - 1)
-        if self.pos[1] < MAP_SIZE:
-            self.pos[1] = MAP_SIZE
-        if self.pos[1] > MAP_SIZE * (NUM_TILES - 1):
-            self.pos[1] = MAP_SIZE * (NUM_TILES - 1)
+        # check map boundaries and relocate the player on the center of the map
+        if self.pos[0] < MAP_SIZE*2:
+            self.pos[0] = (MAP_SIZE * NUM_TILES / 2) - (MAP_SIZE / 2)
+        if self.pos[0] > MAP_SIZE * (NUM_TILES - 2):
+            self.pos[0] = (MAP_SIZE * NUM_TILES / 2) + (MAP_SIZE / 2)
+        if self.pos[1] < MAP_SIZE*2:
+            self.pos[1] = (MAP_SIZE * NUM_TILES / 2) - (MAP_SIZE / 2)
+        if self.pos[1] > MAP_SIZE * (NUM_TILES - 2):
+            self.pos[1] = (MAP_SIZE * NUM_TILES / 2) + (MAP_SIZE / 2)
 
         # increase / decrease speed
         self.speed = -self.pitch*MAX_SPEED/MAP_SIZE*2

@@ -9,7 +9,7 @@ BG_DARK = (0, 0, 0, 50)
 BG_SELECTION = (0, 255, 255, 80)
 MAX_FUEL = 5000
 MAX_DAMAGE = 100
-NUM_TILES = 9
+NUM_TILES = 7
 NUM_MAPS = 10
 
 @njit(fastmath=True)    

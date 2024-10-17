@@ -43,14 +43,14 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 * [x] explosion
 * [ ] wind effects ?
 * [ ] landing zones ?
-* [x] hovering effects ?
+* [x] hovering effects
 * [x] external HUD
 * [x] sky dome
-* [x] fullscreen toggle
+* [x] resizable window
 * [ ] intro screen
 * [ ] end screen
 * [ ] fuel consumption
-* [ ] infinite map
+* [x] infinite map
 
 Known bugs / issues
 
