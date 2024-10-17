@@ -1,5 +1,6 @@
 import math
 from numba import njit
+import random
 import numpy as np
 import pygame as pg
 
@@ -119,7 +120,7 @@ def ray_casting(screen_array, player_pos, player_angle, player_height, player_pi
                         if nvg:
                             for screen_y in range(height_on_screen, y_buffer[num_ray]):
                                 # Set NVG color directly
-                                screen_array[num_ray, screen_y] = [0.0, color_map[x, y][1], 0.0]
+                                screen_array[num_ray, screen_y] = [0.0, max(0,color_map[x, y][1]-random.randint(0,30)), 0.0]
                         else:
                             object_color = color_map[x, y]
                             for screen_y in range(height_on_screen, y_buffer[num_ray]):
