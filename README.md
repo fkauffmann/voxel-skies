@@ -47,7 +47,7 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 * [x] external HUD
 * [x] sky dome
 * [x] resizable window
-* [ ] intro screen
+* [x] intro screen
 * [ ] end screen
 * [ ] fuel consumption
 * [x] infinite map
