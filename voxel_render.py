@@ -254,6 +254,8 @@ class VoxelRender:
             for x in range(-30,30):
                 self.color_map[center-y, center-x] = [255,0,0]
 
+        self.player.landing_area_pos = (center,center)
+
 
     def update(self):
         # update the sky location
@@ -275,6 +277,9 @@ class VoxelRender:
         self.color_map = load_map('img/map'+str(self.map_id)+'_color.png')
         self.create_landing_area()
         self.player.height_map = self.height_map
+        self.player.fuel = MAX_FUEL
+        self.player.height = 250
+        self.player.pos = np.array([(MAP_SIZE*NUM_TILES/2), MAP_SIZE*NUM_TILES/2], dtype=float)
 
     # draw main dashboard
     def draw_cockpit(self):
@@ -370,6 +375,12 @@ class VoxelRender:
                      pg.Rect(self.app.width-110, self.app.height-40, 100, 10), 1)
         self.hud_font_small.render_to(self.app.screen, (self.app.width-150, self.app.height-40), 
                                       "FUEL", HUD_COLOR)
+
+        # distance to landing area
+        self.hud_font_small.render_to(self.app.screen, (self.app.width-150, self.app.height-60), 
+                                      "DIST", HUD_COLOR)
+        self.hud_font_small.render_to(self.app.screen, (self.app.width-110, self.app.height-60), 
+                                      str(int(self.player.landing_area_dist)), HUD_COLOR)        
 
 
 

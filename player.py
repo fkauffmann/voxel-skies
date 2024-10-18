@@ -15,7 +15,7 @@ class Player:
     def __init__(self):
         self.pos = np.array([(MAP_SIZE*NUM_TILES/2), MAP_SIZE*NUM_TILES/2], dtype=float)
         self.angle = -math.pi/2
-        self.height = 400
+        self.height = 250
         self.pitch = 0
         self.angle_vel = 0.02
         self.speed = 0
@@ -41,6 +41,9 @@ class Player:
         self.fuel = MAX_FUEL
         self.damages = MAX_DAMAGES
         self.nvg = False
+        self.landing_area_pos = (0,0)
+        self.landing_area_dist = 0
+        self.landed = False
 
     # return the current heading in degrees (3 digits)
     def get_heading(self):
@@ -130,6 +133,17 @@ class Player:
         if self.pos[1] > MAP_SIZE * (NUM_TILES - 2):
             self.pos[1] = (MAP_SIZE * NUM_TILES / 2) + (MAP_SIZE / 2)
 
+        # compute the distance of the landing zone
+        x1, y1 = self.pos
+        x2, y2 = self.landing_area_pos
+        self.landing_area_dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+        # check if landed
+        if self.landing_area_dist<100 and (self.height - self.ground_elevation - OBJECT_SIZE)==0 and self.speed==0:
+            self.landed = True
+        else:
+            self.landed = False
+
         # increase / decrease speed
         self.speed = -self.pitch*MAX_SPEED/MAP_SIZE*2
 
@@ -171,5 +185,6 @@ class Player:
         oscillation = (math.sin(t)+1)/2
         self.oscillation = (oscillation * 10) - 5
 
-        # compute fuel consumption (todo)
-        self.fuel -= 0.1
+        # compute fuel consumption
+        if self.fuel>0:
+            self.fuel -= 1

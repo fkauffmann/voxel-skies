@@ -2,7 +2,9 @@
 
 A small helicopter simulator heavily inspired by Comanche: Maximum Overkill, published in 1992 by Novalogic.
 
-This seminal game introduced the concept of the voxel rendering engine. 
+This seminal game introduced the concept of the voxel rendering engine.
+
+Your mission is simple: find the nearest landing zone and land to move on to the next level. To help you, you can use the distance displayed in the bottom right-hand corner of the HUD.
 
 The core renderer used in this project has been developed by Stanislas Petrov and can be found here : https://github.com/StanislavPetrovV/Voxel-Space-Render
 
@@ -23,8 +25,8 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 | S | Move Down |
 | Q | Slide left |
 | D | Slide right |
-| L | Load next map |
 | N | Night vision goggles |
+| D | Load next map (debug) |
 
 ## Requirements
 

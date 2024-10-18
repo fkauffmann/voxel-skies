@@ -14,6 +14,8 @@ from voxel_render import VoxelRender
 
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 360
+MAX_FUEL = 5000
+MAX_DAMAGES = 100
 
 class App:
     def __init__(self):
@@ -24,7 +26,7 @@ class App:
         self.screen = pg.display.set_mode(self.res, pg.SCALED | pg.RESIZABLE)
         self.intro = pg.image.load('img/intro.jpg')
         self.large_font = pg.freetype.Font("./fonts/voxel.ttf", 64)
-        self.small_font = pg.freetype.Font("./fonts/lcd.ttf", 24)
+        self.small_font = pg.freetype.Font("./fonts/lcd.ttf", 18)
         self.clock = pg.time.Clock()
         self.player = Player()
         self.explosion = Explosion()
@@ -47,20 +49,34 @@ class App:
     def draw(self):
         # intro screen
         if self.stage==0:
+            pg.mixer.music.stop() 
             intro_screen = pg.transform.scale(self.intro, (WINDOW_WIDTH, WINDOW_HEIGHT+20))
             t = time.time()
-            oscillation = (math.sin(t)+1)*10  
-            self.screen.blit(intro_screen, (0,oscillation-10))
+            offset_y = (math.sin(t)+1)*10  
+            self.screen.blit(intro_screen, (0, offset_y-20))
             
-            self.large_font.render_to(self.screen, (WINDOW_WIDTH/2-230, WINDOW_HEIGHT-150), 
+            self.large_font.render_to(self.screen, (WINDOW_WIDTH/2-235, WINDOW_HEIGHT-150), 
                                       "VOXEL SKIES", (255,255,255))
-            self.small_font.render_to(self.screen, (WINDOW_WIDTH/2-120, WINDOW_HEIGHT-70), 
+            self.small_font.render_to(self.screen, (WINDOW_WIDTH/2-90, WINDOW_HEIGHT-70), 
                                       "PRESS SPACE TO CONTINUE", (255,255,255))
 
 
         # game screen
         if self.stage==1:
             self.voxel_render.draw()
+
+        # crashed! (restart current level)
+        if self.player.damages==0 or self.player.fuel==0:
+            self.player.damages = MAX_DAMAGES
+            self.player.fuel = MAX_FUEL
+            self.stage = 0
+
+        # landed (load next map)
+        if self.player.landed:
+            self.player.landed = False
+            self.voxel_render.change_map()
+            self.stage = 0
+        
         pg.display.flip()
 
     def run(self):
@@ -69,7 +85,7 @@ class App:
             self.draw()
 
             for event in pg.event.get():
-                # quit game
+                # quit the game
                 if event.type == pg.QUIT or (
                         event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                     sys.exit()
@@ -79,8 +95,8 @@ class App:
                         self.stage = 1
                         pg.mixer.music.play(-1) 
                 if self.stage==1:
-                    # load next map
-                    if event.type == pg.KEYDOWN and event.key == pg.K_l:
+                    # load next map (debug)
+                    if event.type == pg.KEYDOWN and event.key == pg.K_d :
                         self.voxel_render.change_map()
                     # toggle night vision goggles
                     if event.type == pg.KEYDOWN and event.key == pg.K_n:
