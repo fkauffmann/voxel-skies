@@ -9,6 +9,7 @@ BG_DARK = (0, 0, 0, 50)
 BG_SELECTION = (0, 255, 255, 80)
 MAX_FUEL = 5000
 MAX_DAMAGE = 100
+MAP_SIZE = 1024
 NUM_TILES = 7
 NUM_MAPS = 10
 
@@ -233,6 +234,26 @@ class VoxelRender:
         self.player.height_map = self.height_map
         self.sky_offset_x = 0
         self.sky = pg.surfarray.array3d(pg.image.load('img/sky.png'))
+        self.create_landing_area()
+
+    def create_landing_area(self):
+        # place a random landing area on the map (H)
+        center = random.randint(MAP_SIZE*2+100, MAP_SIZE * (NUM_TILES - 2)-100)
+
+        for y in range(-50, 50):
+            for x in range(-50,50):
+                self.color_map[center-y, center-x] = [255,255,255]
+                self.height_map[center-y, center-x] = [0,0,0]
+
+        for y in range(-30, 30):
+            for x in range(-30,-20):
+                self.color_map[center-y, center-x] = [255,0,0]
+            for x in range(20,30):
+                self.color_map[center-y, center-x] = [255,0,0]
+        for y in range(-5, 5):
+            for x in range(-30,30):
+                self.color_map[center-y, center-x] = [255,0,0]
+
 
     def update(self):
         # update the sky location
@@ -252,6 +273,7 @@ class VoxelRender:
             self.map_id = 0
         self.height_map = load_map('img/map'+str(self.map_id)+'_height.png')
         self.color_map = load_map('img/map'+str(self.map_id)+'_color.png')
+        self.create_landing_area()
         self.player.height_map = self.height_map
 
     # draw main dashboard
