@@ -233,7 +233,9 @@ class VoxelRender:
         self.color_map = load_map('img/map'+str(self.map_id)+'_color.png')
         self.player.height_map = self.height_map
         self.sky_offset_x = 0
-        self.sky = pg.surfarray.array3d(pg.image.load('img/sky.png'))
+        sky_image = pg.image.load('img/sky.png')
+        resized_sky_image = pg.transform.scale(sky_image, (self.app.width * 3, self.app.height))
+        self.sky = pg.surfarray.array3d(resized_sky_image)
         self.create_landing_area()
 
     def create_landing_area(self):
@@ -297,6 +299,10 @@ class VoxelRender:
 
         # green borders
         pg.draw.rect(self.app.screen, HUD_COLOR, pg.Rect(10, self.app.height-76, 66, 66), 1)
+
+        # cross mark
+        pg.draw.line(self.app.screen, HUD_COLOR, (44, self.app.height-76+36), (44, self.app.height-76+28))
+        pg.draw.line(self.app.screen, HUD_COLOR, (40, self.app.height-76+32), (48, self.app.height-76+32))
 
     # draw head-up-display
     def draw_hud(self):

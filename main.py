@@ -12,7 +12,7 @@ from voxel_render import VoxelRender
 # published in 1992 by Novalogic.
 ###############################################################################
 
-WINDOW_WIDTH = 640
+WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 360
 MAX_FUEL = 5000
 MAX_DAMAGES = 100
