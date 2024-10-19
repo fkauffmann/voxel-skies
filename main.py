@@ -20,7 +20,8 @@ MAX_DAMAGES = 100
 class App:
     def __init__(self):
         pg.init()
-        pg.mixer.init()        
+        pg.mixer.init()   
+        pg.mixer.set_num_channels(8)     
 
         self.res = self.width, self.height = (WINDOW_WIDTH, WINDOW_HEIGHT)
         self.screen = pg.display.set_mode(self.res, pg.SCALED | pg.RESIZABLE)
@@ -45,7 +46,7 @@ class App:
         if self.current_track==0 and self.current_track!=self.previous_track:
             if pg.mixer.get_init():
                 pg.mixer.music.load("sounds/soundtrack.flac")
-                pg.mixer.music.set_volume(0.4)      
+                pg.mixer.music.set_volume(0.3)      
                 pg.mixer.music.play(-1) 
             self.previous_track = self.current_track
 
@@ -53,7 +54,7 @@ class App:
         if self.current_track==1 and self.current_track!=self.previous_track:
             if pg.mixer.get_init():
                 pg.mixer.music.load("sounds/helicopter.wav")
-                pg.mixer.music.set_volume(0.8)      
+                pg.mixer.music.set_volume(1.0)      
                 pg.mixer.music.play(-1) 
             self.previous_track = self.current_track
 
@@ -110,7 +111,7 @@ class App:
                         self.stage = 1
                 if self.stage==1:
                     # load next map (debug)
-                    if event.type == pg.KEYDOWN and event.key == pg.K_d :
+                    if event.type == pg.KEYDOWN and event.key == pg.K_l :
                         self.voxel_render.change_map()
                     # toggle night vision goggles
                     if event.type == pg.KEYDOWN and event.key == pg.K_n:

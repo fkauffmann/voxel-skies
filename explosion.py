@@ -14,6 +14,8 @@ class Explosion:
 
         self.image = self.images[0]
         self.index = 0
+        self.explosion_sound = pg.mixer.Sound("./sounds/explosion.wav")
+        self.explosion_sound.set_volume(0.4)        
 
     def update(self):
         # animate the sprite of the explosion

@@ -407,6 +407,9 @@ class VoxelRender:
     def draw_explosion(self):
         if self.player.is_damaged():
             self.app.screen.blit(self.explosion.image, (self.app.width / 2 - 40, self.app.height / 2 - 32))
+            voice = pg.mixer.Channel(5)
+            if not voice.get_busy():
+                voice.play(self.explosion.explosion_sound)            
     
     # draw components
     def draw(self):

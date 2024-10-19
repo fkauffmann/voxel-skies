@@ -26,7 +26,7 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 | Q | Slide left |
 | D | Slide right |
 | N | Night vision goggles |
-| D | Load next map (debug) |
+| L | Load next map (debug) |
 
 ## Requirements
 
@@ -43,7 +43,7 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 * [x] radar alt if close to the ground
 * [x] music 
 * [x] explosion
-* [ ] explosion sounds
+* [x] explosion sounds
 * [ ] wind effects ?
 * [x] landing zones
 * [x] hovering effects
