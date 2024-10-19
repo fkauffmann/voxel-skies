@@ -41,17 +41,17 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 * [x] targets ? no, this will be a simulation-oriented game
 * [x] damages / energy bar
 * [x] radar alt if close to the ground
-* [ ] music / sound effects
+* [x] music 
 * [x] explosion
+* [ ] explosion sounds
 * [ ] wind effects ?
-* [ ] landing zones ?
+* [x] landing zones
 * [x] hovering effects
 * [x] external HUD
 * [x] sky dome
 * [x] resizable window
 * [x] intro screen
-* [ ] end screen
-* [ ] fuel consumption
+* [x] fuel consumption
 * [x] infinite map
 
 Known bugs / issues
@@ -62,3 +62,6 @@ Known bugs / issues
 
 Helicopter sound:
 https://freesound.org/people/Robinhood76/sounds/554511/ by Robinhood76
+
+Intro music:
+https://freesound.org/people/Timbre/sounds/561191/ by Timbre

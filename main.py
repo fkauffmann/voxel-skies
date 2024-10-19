@@ -32,15 +32,31 @@ class App:
         self.explosion = Explosion()
         self.voxel_render = VoxelRender(self)
         self.stage = 0
+        self.current_track = 0
+        self.previous_track = -1
         
         pg.display.set_icon(pg.image.load('img/icon.png'))
 
-        # play helicopter sound in background
-        if pg.mixer.get_init():
-            pg.mixer.music.load("sounds/helicopter.wav")
-            pg.mixer.music.set_volume(0.8)      
-
     def update(self):
+
+        self.current_track = self.stage
+
+        # play music in background
+        if self.current_track==0 and self.current_track!=self.previous_track:
+            if pg.mixer.get_init():
+                pg.mixer.music.load("sounds/soundtrack.flac")
+                pg.mixer.music.set_volume(0.4)      
+                pg.mixer.music.play(-1) 
+            self.previous_track = self.current_track
+
+        # play helicopter sound in background
+        if self.current_track==1 and self.current_track!=self.previous_track:
+            if pg.mixer.get_init():
+                pg.mixer.music.load("sounds/helicopter.wav")
+                pg.mixer.music.set_volume(0.8)      
+                pg.mixer.music.play(-1) 
+            self.previous_track = self.current_track
+
         if self.stage==1:
             self.player.update()
             self.explosion.update()
@@ -49,7 +65,6 @@ class App:
     def draw(self):
         # intro screen
         if self.stage==0:
-            pg.mixer.music.stop() 
             intro_screen = pg.transform.scale(self.intro, (WINDOW_WIDTH, WINDOW_HEIGHT+20))
             t = time.time()
             offset_y = (math.sin(t)+1)*10  
@@ -93,7 +108,6 @@ class App:
                     # skip the intro screen
                     if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                         self.stage = 1
-                        pg.mixer.music.play(-1) 
                 if self.stage==1:
                     # load next map (debug)
                     if event.type == pg.KEYDOWN and event.key == pg.K_d :
