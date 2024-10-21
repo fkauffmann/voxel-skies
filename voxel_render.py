@@ -3,15 +3,7 @@ from numba import njit
 import random
 import numpy as np
 import pygame as pg
-
-HUD_COLOR = (0, 255, 150)
-BG_DARK = (0, 0, 0, 50)
-BG_SELECTION = (0, 255, 255, 80)
-MAX_FUEL = 5000
-MAX_DAMAGE = 100
-MAP_SIZE = 1024
-NUM_TILES = 7
-NUM_MAPS = 10
+from settings import *
 
 @njit(fastmath=True)    
 def repeat_tiles(height_map, map_size):
@@ -240,11 +232,14 @@ class VoxelRender:
 
     def create_landing_area(self):
         # place a random landing area on the map (H)
-        center = random.randint(MAP_SIZE*2+100, MAP_SIZE * (NUM_TILES - 2)-100)
+        center = random.randint(MAP_SIZE*2+120, MAP_SIZE * (NUM_TILES - 2)-120)
 
         for y in range(-50, 50):
             for x in range(-50,50):
                 self.color_map[center-y, center-x] = [255,255,255]
+                
+        for y in range(-60, 60):
+            for x in range(-60,60):               
                 self.height_map[center-y, center-x] = [0,0,0]
 
         for y in range(-30, 30):

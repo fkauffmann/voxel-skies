@@ -2,14 +2,7 @@ import math
 import numpy as np
 import pygame as pg
 import time
-
-NUM_TILES = 7
-MAP_SIZE = 1024
-MIN_SPEED = -20
-MAX_SPEED = 20
-MAX_FUEL = 5000
-MAX_DAMAGES = 100
-OBJECT_SIZE = 5
+from settings import *
 
 class Player:
     def __init__(self):

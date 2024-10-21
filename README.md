@@ -44,7 +44,6 @@ I don't intend to develop an arcade game, but rather a small flight simulator wi
 * [x] music 
 * [x] explosion
 * [x] explosion sounds
-* [ ] wind effects ?
 * [x] landing zones
 * [x] hovering effects
 * [x] external HUD

@@ -5,17 +5,13 @@ import sys
 from player import Player
 from explosion import Explosion
 from voxel_render import VoxelRender
+from settings import *
 
 ###############################################################################
 # VOXEL SKIES
 # A small helicopter simulator heavily inspired by Comanche: Maximum Overkill, 
 # published in 1992 by Novalogic.
 ###############################################################################
-
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 360
-MAX_FUEL = 5000
-MAX_DAMAGES = 100
 
 class App:
     def __init__(self):
@@ -91,7 +87,6 @@ class App:
         if self.player.landed:
             self.player.landed = False
             self.voxel_render.change_map()
-            self.stage = 0
         
         pg.display.flip()
 
