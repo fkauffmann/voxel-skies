@@ -28,8 +28,8 @@ class App:
         self.player = Player()
         self.explosion = Explosion()
         self.voxel_render = VoxelRender(self)
-        self.stage = 0
-        self.current_track = 0
+        self.stage = 0 # (0=intro, 1=game, 2=success, 3=failure)
+        self.current_track = 1
         self.previous_track = -1
         
         pg.display.set_icon(pg.image.load('img/icon.png'))
@@ -39,7 +39,7 @@ class App:
         self.current_track = self.stage
 
         # play music in background
-        if self.current_track==0 and self.current_track!=self.previous_track:
+        if self.current_track!=1 and self.current_track!=self.previous_track:
             if pg.mixer.get_init():
                 pg.mixer.music.load("sounds/soundtrack.flac")
                 pg.mixer.music.set_volume(0.3)      
@@ -73,6 +73,18 @@ class App:
                                       "PRESS SPACE TO CONTINUE", (255,255,255))
 
 
+        if self.stage==2:
+            self.large_font.render_to(self.screen, (60, WINDOW_HEIGHT/2-30), 
+                                      "MISSION COMPLETE", HUD_COLOR)
+            self.small_font.render_to(self.screen, (WINDOW_WIDTH/2-90, WINDOW_HEIGHT-70), 
+                                      "PRESS SPACE TO CONTINUE", HUD_COLOR)
+
+        if self.stage==3:
+            self.large_font.render_to(self.screen, (100, WINDOW_HEIGHT/2-30), 
+                                      "MISSION FAILURE", HUD_COLOR)
+            self.small_font.render_to(self.screen, (WINDOW_WIDTH/2-90, WINDOW_HEIGHT-70), 
+                                      "PRESS SPACE TO CONTINUE", HUD_COLOR)
+
         # game screen
         if self.stage==1:
             self.voxel_render.draw()
@@ -81,12 +93,13 @@ class App:
         if self.player.damages==0 or self.player.fuel==0:
             self.player.damages = MAX_DAMAGES
             self.player.fuel = MAX_FUEL
-            self.stage = 0
+            self.stage = 3
 
         # landed (load next map)
         if self.player.landed:
             self.player.landed = False
             self.voxel_render.change_map()
+            self.stage = 2
         
         pg.display.flip()
 
@@ -100,7 +113,7 @@ class App:
                 if event.type == pg.QUIT or (
                         event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                     sys.exit()
-                if self.stage==0:
+                if self.stage!=1:
                     # skip the intro screen
                     if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                         self.stage = 1
