@@ -12,7 +12,7 @@ class Player:
         self.pitch = 0
         self.angle_vel = 0.02
         self.speed = 0
-        self.vertical_velocity = 1
+        self.vertical_velocity = 2
         self.pitch_velocity = 4
         self.lateral_velocity = 2
         self.roll = 0
